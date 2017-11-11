@@ -2,18 +2,12 @@ package com.wuhulala.netty.demo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoop;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.ReferenceCountUtil;
-import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
  * @author wuhulala
@@ -31,7 +25,7 @@ public class EchoServer {
     }
 
     public void start() throws InterruptedException {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(); // (1)
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -46,14 +40,15 @@ public class EchoServer {
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
+
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture f = b.bind(port).sync();
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info(EchoServer.class.getName() + "started and listen on " + f.channel().localAddress());
             }
             f.channel().closeFuture().sync();
-        }finally {
+        } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
@@ -67,32 +62,29 @@ public class EchoServer {
             e.printStackTrace();
         }
     }
-    @ChannelHandler.Sharable
+
     private class EchoServerHandler extends ChannelInboundHandlerAdapter {
+
+
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            ByteBuf in=(ByteBuf)msg;
-            try {
-                while(in.isReadable()){
-                    System.out.println((char)in.readByte());
-                    System.out.flush();
-                }
-            } finally {
-                ReferenceCountUtil.release(msg);
+            ByteBuf in = (ByteBuf) msg;
+            StringBuilder sb = new StringBuilder();
+            while (in.isReadable()) {
+                sb.append((char) in.readByte());
             }
-            ctx.write(msg);
-            ctx.flush();
+            System.out.println("client[" + ctx.channel().remoteAddress() + "]" +sb.toString());
+            ctx.write(PingPongUtils.newPongMessage());
         }
 
         @Override
         public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER)
-                    .addListener(ChannelFutureListener.CLOSE);
+            ctx.flush();
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.error(cause.getMessage(), cause);
+            logger.error(ctx.channel().remoteAddress().toString()+ "下线了！！", cause);
             ctx.close();
         }
     }

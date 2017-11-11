@@ -2,17 +2,12 @@ package com.wuhulala.netty.demo;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
  * @author wuhulala
@@ -27,6 +22,8 @@ public class EchoClient {
     private final String host;
     private final int port;
 
+    static final int SIZE = Integer.parseInt(System.getProperty("size", "256"));
+
     public EchoClient(String host, int port) {
         this.host = host;
         this.port = port;
@@ -34,12 +31,12 @@ public class EchoClient {
 
     public void start() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
-        try{
+        try {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_KEEPALIVE, true) // (4)
-                    .handler(new ChannelInitializer<SocketChannel>(){
+                    .option(ChannelOption.TCP_NODELAY, true) // (4)
+                    .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new EchoClientHandler());
@@ -49,7 +46,7 @@ public class EchoClient {
 
             f.channel().closeFuture().sync();
 
-        }finally {
+        } finally {
             group.shutdownGracefully();
         }
     }
@@ -63,27 +60,44 @@ public class EchoClient {
     /**
      * handler
      */
-    @ChannelHandler.Sharable
-    private class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
-        @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            if(logger.isDebugEnabled()){
-                logger.debug("connected success!!!");
-            }
-            ctx.write(Unpooled.copiedBuffer("Hello server!!!", CharsetUtil.UTF_8));
+    static class EchoClientHandler extends ChannelInboundHandlerAdapter {
+        private final ByteBuf firstMessage;
+
+        /**
+         * Creates a client-side handler.
+         */
+        public EchoClientHandler() {
+            firstMessage = PingPongUtils.newPingMessage();
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.error(cause.getMessage(), cause);
+        public void channelActive(ChannelHandlerContext ctx) {
+            ctx.writeAndFlush(firstMessage);
+        }
+
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+            ByteBuf in = (ByteBuf) msg;
+
+            StringBuilder sb = new StringBuilder();
+            while (in.isReadable()) {
+                sb.append((char) in.readByte());
+            }
+            System.out.println("server: " + sb.toString());
+            Thread.sleep(10000);
+            ctx.write(PingPongUtils.newPingMessage());
+        }
+
+        @Override
+        public void channelReadComplete(ChannelHandlerContext ctx) {
+            ctx.flush();
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            // Close the connection when an exception is raised.
+            logger.error("服务器gg了，我也下线了" + cause.getMessage(), cause);
             ctx.close();
-        }
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-            if(logger.isInfoEnabled()) {
-                logger.info("Client received: " + ByteBufUtil.hexDump(in.readBytes(in.readableBytes())));
-            }
         }
     }
 }
