@@ -9,6 +9,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author wuhulala
  * @version 1.0
@@ -63,11 +66,16 @@ public class EchoServer {
         }
     }
 
-    private class EchoServerHandler extends ChannelInboundHandlerAdapter {
+    static class EchoServerHandler extends ChannelInboundHandlerAdapter {
 
+        private static Map<String, String> loginUsers = new ConcurrentHashMap<>();
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            String remoteAddress = ctx.channel().remoteAddress().toString();
+            updateAddress(remoteAddress);
+            System.out.printf("start handle [%s] \n\r", remoteAddress);
+            Thread.sleep(3000);
             ByteBuf in = (ByteBuf) msg;
             StringBuilder sb = new StringBuilder();
             while (in.isReadable()) {
@@ -75,6 +83,13 @@ public class EchoServer {
             }
             System.out.println("client[" + ctx.channel().remoteAddress() + "]" +sb.toString());
             ctx.write(PingPongUtils.newPongMessage());
+            System.out.printf("handle [%s] end \n\r", remoteAddress);
+
+        }
+
+        private void updateAddress(String remoteAddress) {
+            loginUsers.put(remoteAddress, DateUtils.nowDateTime());
+            System.out.println("now user list size ==================================== "+ loginUsers.size());
         }
 
         @Override
@@ -84,7 +99,9 @@ public class EchoServer {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.error(ctx.channel().remoteAddress().toString()+ "下线了！！", cause);
+            String userName = ctx.channel().remoteAddress().toString();
+            loginUsers.remove(userName);
+            logger.error(userName+ "下线了！！", cause);
             ctx.close();
         }
     }

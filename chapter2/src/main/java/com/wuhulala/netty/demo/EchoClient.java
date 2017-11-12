@@ -35,7 +35,7 @@ public class EchoClient {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .option(ChannelOption.TCP_NODELAY, true) // (4)
+                    .option(ChannelOption.TCP_NODELAY, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
@@ -52,15 +52,26 @@ public class EchoClient {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        EchoClient client = new EchoClient("127.0.0.1", 8080);
-        client.start();
+
+        for (int i = 0; i < 100; i++) {
+            new Thread(() -> {
+                EchoClient client = new EchoClient("127.0.0.1", 8080);
+                try {
+                    client.start();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+
+
     }
 
 
     /**
      * handler
      */
-    static class EchoClientHandler extends ChannelInboundHandlerAdapter {
+    static class EchoClientHandler extends SimpleChannelInboundHandler {
         private final ByteBuf firstMessage;
 
         /**
@@ -75,8 +86,28 @@ public class EchoClient {
             ctx.writeAndFlush(firstMessage);
         }
 
+
+//        /**
+//         * not release msg
+//         * @param ctx
+//         * @param msg
+//         * @throws Exception
+//         */
+//        @Override
+//        public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+//            ByteBuf in = (ByteBuf) msg;
+//
+//            StringBuilder sb = new StringBuilder();
+//            while (in.isReadable()) {
+//                sb.append((char) in.readByte());
+//            }
+//            System.out.println("server: " + sb.toString());
+//            Thread.sleep(100);
+//            ctx.write(PingPongUtils.newPingMessage());
+//        }
+
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+        protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
             ByteBuf in = (ByteBuf) msg;
 
             StringBuilder sb = new StringBuilder();
@@ -87,7 +118,6 @@ public class EchoClient {
             Thread.sleep(10000);
             ctx.write(PingPongUtils.newPingMessage());
         }
-
         @Override
         public void channelReadComplete(ChannelHandlerContext ctx) {
             ctx.flush();
@@ -97,6 +127,7 @@ public class EchoClient {
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             // Close the connection when an exception is raised.
             logger.error("服务器gg了，我也下线了" + cause.getMessage(), cause);
+
             ctx.close();
         }
     }
