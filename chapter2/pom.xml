@@ -11,5 +11,12 @@
 
     <artifactId>chapter2</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wuhulala</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
