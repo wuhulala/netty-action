@@ -107,7 +107,7 @@ public class EchoClient {
 //        }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+        protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
             ByteBuf in = (ByteBuf) msg;
 
             StringBuilder sb = new StringBuilder();

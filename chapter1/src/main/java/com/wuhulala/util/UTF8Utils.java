@@ -1,4 +1,4 @@
-package com.wuhulala.utils;
+package com.wuhulala.util;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
