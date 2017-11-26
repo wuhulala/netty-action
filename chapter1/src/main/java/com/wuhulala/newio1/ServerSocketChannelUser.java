@@ -12,14 +12,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by xueah20964 on 2017/5/23.
- */
+
 public class ServerSocketChannelUser {
 
     private static Map<String, SocketAddress> nameAddress = new ConcurrentHashMap<>();
@@ -164,33 +161,33 @@ public class ServerSocketChannelUser {
 
         updateSocketAddressReqCount(sc, count);
         //System.out.println("此次接收到的消息为：" + username);
-        if (!username.contains(":")) {
-            SocketAddress sa = sc.getRemoteAddress();
-            nameAddress.put(username, sa);
-            addressChannel.put(sa, sc);
-            //System.out.println("进入聊天室的是：[" + username + "]-：地址" + sc.getRemoteAddress());
-            sc.write(UTF8Utils.encode("进入聊天室成功！！！你好" + username));
-        } else {
-            String[] users = username.split(":");
-            if (users.length == 3) {
-                SocketAddress address = nameAddress.get(users[1]);
-                if (address != null) {
-                    SocketChannel socketChannel = addressChannel.get(address);
-                    if (socketChannel != null) {
-                        String resp = users[0] + "说:【" + users[2] + "】";
-                        System.out.println("回应信息是:[" + resp + "]");
-                        socketChannel.write(UTF8Utils.encode(resp));
-                    } else {
-                        sc.write(UTF8Utils.encode("他不在线。。"));
-
-                    }
-                } else {
-                    sc.write(UTF8Utils.encode("他不在线。。"));
-                }
-            } else {
-                sc.write(UTF8Utils.encode("输入信息无效。。"));
-            }
-        }
+//        if (!username.contains(":")) {
+//            SocketAddress sa = sc.getRemoteAddress();
+//            nameAddress.put(username, sa);
+//            addressChannel.put(sa, sc);
+//            //System.out.println("进入聊天室的是：[" + username + "]-：地址" + sc.getRemoteAddress());
+//            sc.write(UTF8Utils.encode("进入聊天室成功！！！你好" + username));
+//        } else {
+//            String[] users = username.split(":");
+//            if (users.length == 3) {
+//                SocketAddress address = nameAddress.get(users[1]);
+//                if (address != null) {
+//                    SocketChannel socketChannel = addressChannel.get(address);
+//                    if (socketChannel != null) {
+//                        String resp = users[0] + "说:【" + users[2] + "】";
+//                        System.out.println("回应信息是:[" + resp + "]");
+//                        socketChannel.write(UTF8Utils.encode(resp));
+//                    } else {
+//                        sc.write(UTF8Utils.encode("他不在线。。"));
+//
+//                    }
+//                } else {
+//                    sc.write(UTF8Utils.encode("他不在线。。"));
+//                }
+//            } else {
+//                sc.write(UTF8Utils.encode("输入信息无效。。"));
+//            }
+//        }
 
         System.out.println("end 处理客户端请求..." + Thread.currentThread().getName());
 
@@ -232,8 +229,6 @@ public class ServerSocketChannelUser {
 
     }
 
-
-    //根据value值获取到对应的一个key值
     private static <K, V> K getKey(Map<K, V> map, V value) {
         for (K getKey : map.keySet()) {
             if (map.get(getKey) == value) {
@@ -241,17 +236,6 @@ public class ServerSocketChannelUser {
             }
         }
         return null;
-    }
-
-    public void main1() {
-        Map<String, InetSocketAddress> map = new HashMap<>();
-        InetSocketAddress i1 = new InetSocketAddress(9631);
-        InetSocketAddress i2 = new InetSocketAddress(9632);
-
-        map.put("1", i1);
-        map.put("2", i2);
-
-        System.out.println(getKey(map, i2));
     }
 
 }

@@ -10,9 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-/**
- * Created by xueah20964 on 2017/5/23.
- */
+
 public class ConcurrentSocketChannelUser {
 
     private Selector selector = null;

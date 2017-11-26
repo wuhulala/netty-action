@@ -9,9 +9,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-/**
- * Created by xueah20964 on 2017/5/22.
- */
+
 public class FileChannelUser {
 
     private static final int SIZE = 1024;
