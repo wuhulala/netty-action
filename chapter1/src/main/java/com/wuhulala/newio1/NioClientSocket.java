@@ -10,8 +10,12 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-
-public class ConcurrentSocketChannelUser {
+/**
+ * @author wuhulala
+ * @version 1.0
+ * @date 2017/11/26
+ */
+public class NioClientSocket {
 
     private Selector selector = null;
     private SocketChannel socketChannel = null;
@@ -27,7 +31,7 @@ public class ConcurrentSocketChannelUser {
         public void run() {
             for (int i = 0; i < 1; i++) {
                 try {
-                    new ConcurrentSocketChannelUser(Thread.currentThread().getName()+ "[" + i + "]").init();
+                    new NioClientSocket(Thread.currentThread().getName()+ "[" + i + "]").init();
                 } catch (IOException e) {
                     System.out.println(Thread.currentThread().getName() + "--------------" + i );
                     //e.printStackTrace();
@@ -36,7 +40,7 @@ public class ConcurrentSocketChannelUser {
         }
     }
 
-    public ConcurrentSocketChannelUser(String name) {
+    public NioClientSocket(String name) {
         this.name = name;
     }
 
@@ -54,7 +58,7 @@ public class ConcurrentSocketChannelUser {
         }
 
         //------------ 注册自己的存在------------------
-        String newData = "";
+        String newData ;
         //测试 粘包问题,可以通过/r/n后台拆分
         for (int i = 0; i < 50; i++) {
             newData = name + "\r\n";
@@ -70,21 +74,6 @@ public class ConcurrentSocketChannelUser {
         }
         socketChannel.write(UTF8Utils.encode("\r\n"));
         //这样服务器此时应该又收到一条命令，加上上面的总共有51条命令
-//        ByteBuffer buf = ByteBuffer.allocate(5000 * name.getBytes().length);
-//        buf.clear();
-//        buf.put(newData.getBytes());
-//        buf.flip();
-        try {
-            System.out.println("我先休息十秒再发");
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        //buf.clear();
-        socketChannel.write(UTF8Utils.encode("lisi:nihao"));
-
-        //-----------打开自己的读取功能----------------
-        new Thread(new ReadThread()).start();
 
     }
 

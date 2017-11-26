@@ -16,15 +16,19 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-public class ServerSocketChannelUser {
+/**
+ * @author wuhulala
+ * @version 1.0
+ * @date 2017/11/26
+ */
+public class NioServerSocket {
 
     private static Map<String, SocketAddress> nameAddress = new ConcurrentHashMap<>();
     private static Map<SocketAddress, SocketChannel> addressChannel = new ConcurrentHashMap<>();
     private static Map<SocketAddress, Integer> addressReqCount = new ConcurrentHashMap<>();
     /**
      * 用来存取本次多读取了多余的半包
-      */
+     */
     private static Map<SocketAddress, Object> addressOldReq = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
@@ -113,81 +117,51 @@ public class ServerSocketChannelUser {
 
     private static void parse(SocketChannel sc) throws IOException, InterruptedException {
         System.out.println("start 处理客户端请求." + sc + ".." + Thread.currentThread().getName());
-        //Thread.sleep(1000);
         ByteBuffer bb = ByteBuffer.allocate(1024);
-        StringBuilder sb = new StringBuilder();
-        String username = "";
+        String req = "";
 
         //对于粘包问题 通过\r\n拆分数据包
         //对于拆包问题 可以保存这个半包数据和客户端地址对应起来，最后再拼起来
         while (sc.read(bb) > 0) {
             bb.flip();
-            //while (bb.hasRemaining()) {
-            //sb.append((char) bb.get());
-            //}
-            username += UTF8Utils.decode(bb);
-
+            req += UTF8Utils.decode(bb);
             bb.clear();
         }
+
         //先读取本次所有的数据，然后在根据分隔符分割
-        char[] reqChars = username.toCharArray();
+        char[] reqChars = req.toCharArray();
         // 在此默认命令大小只有20000
         char[] onceReq = new char[20000];
+        // 读取对于本客户端上次遗留的半包
         char[] oldReq = getSocketAddressOldReq(sc);
+        // 拷贝半包
         System.arraycopy(oldReq, 0, onceReq, 0, oldReq.length);
+
         int count = 0;
         int index = oldReq.length;
         for (int i = 0, len = reqChars.length; i < len; i++) {
-            if (reqChars[i] == '\r' && reqChars[i + 1] == '\n'){
-
+            if (reqChars[i] == '\r' && reqChars[i + 1] == '\n') {
                 System.out.println("单次请求是：[" + String.valueOf(onceReq) + "]");
 
                 //重置所有
-                ++ count;
+                ++count;
                 index = 0;
-                i ++;
-            }else {
-                onceReq[index ++] = reqChars[i];
+                i++;
+            } else {
+                onceReq[index++] = reqChars[i];
             }
         }
+
         // 如果这次存在多余的半包比如xxx/r/nxx，那么xx就是多余的两个字符
-        if(index != 0){
+        if (index != 0) {
             char[] newOldReq = new char[index];
-            System.arraycopy(onceReq,0 ,newOldReq, 0 ,index);
+            System.arraycopy(onceReq, 0, newOldReq, 0, index);
             updateSocketAddressOldReq(sc, newOldReq);
         }
-        //username = sb.toString();
-        System.out.println("此次接收到的消息大小为：" + username.length() + "，命令条数：" + count);
+
+        System.out.println("此次接收到的消息大小为：" + req.length() + "，命令条数：" + count);
 
         updateSocketAddressReqCount(sc, count);
-        //System.out.println("此次接收到的消息为：" + username);
-//        if (!username.contains(":")) {
-//            SocketAddress sa = sc.getRemoteAddress();
-//            nameAddress.put(username, sa);
-//            addressChannel.put(sa, sc);
-//            //System.out.println("进入聊天室的是：[" + username + "]-：地址" + sc.getRemoteAddress());
-//            sc.write(UTF8Utils.encode("进入聊天室成功！！！你好" + username));
-//        } else {
-//            String[] users = username.split(":");
-//            if (users.length == 3) {
-//                SocketAddress address = nameAddress.get(users[1]);
-//                if (address != null) {
-//                    SocketChannel socketChannel = addressChannel.get(address);
-//                    if (socketChannel != null) {
-//                        String resp = users[0] + "说:【" + users[2] + "】";
-//                        System.out.println("回应信息是:[" + resp + "]");
-//                        socketChannel.write(UTF8Utils.encode(resp));
-//                    } else {
-//                        sc.write(UTF8Utils.encode("他不在线。。"));
-//
-//                    }
-//                } else {
-//                    sc.write(UTF8Utils.encode("他不在线。。"));
-//                }
-//            } else {
-//                sc.write(UTF8Utils.encode("输入信息无效。。"));
-//            }
-//        }
 
         System.out.println("end 处理客户端请求..." + Thread.currentThread().getName());
 
@@ -207,7 +181,7 @@ public class ServerSocketChannelUser {
         char[] oldReq = new char[0];
         try {
             SocketAddress sa = sc.getRemoteAddress();
-            if(addressOldReq.get(sc) != null){
+            if (addressOldReq.get(sc) != null) {
                 System.out.println(sa.toString() + "此次存在历史遗留的包======" + String.valueOf(oldReq));
                 oldReq = (char[]) addressOldReq.get(sc);
             }
@@ -222,7 +196,7 @@ public class ServerSocketChannelUser {
             SocketAddress sa = sc.getRemoteAddress();
             Integer oldCount = addressReqCount.get(sa);
             addressReqCount.put(sa, oldCount == null ? count : oldCount + count);
-            System.out.println(sa.toString() + "当前已经请求了======" + addressReqCount.get(sa) +"次！！！");
+            System.out.println(sa.toString() + "当前已经请求了======" + addressReqCount.get(sa) + "次！！！");
         } catch (IOException e) {
             e.printStackTrace();
         }
