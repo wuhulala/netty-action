@@ -20,6 +20,7 @@
         <module>chapter4</module>
         <module>api</module>
         <module>chapter5-http</module>
+        <module>chapter6-websocket</module>
     </modules>
     <dependencies>
         <dependency>

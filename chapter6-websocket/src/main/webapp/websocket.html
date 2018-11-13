@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket</title>
+</head>
+<body>
+
+<script type="text/javascript">
+    var socket;
+    if (!window.WebSocket) {
+        window.WebSocket = window.MozWebSocket;
+    }
+    if (window.WebSocket) {
+        socket = new WebSocket("ws://localhost:8080/websocket");
+        socket.onmessage = function (event) {
+            var ta = document.getElementById("responseText");
+            ta.value = "";
+            ta.value = event.data;
+        };
+        socket.onopen = function (event) {
+            var ta = document.getElementById("responseText");
+            ta.value = "打开WebSocket,一起正常，欢迎进入聊天室";
+        };
+        socket.onclose = function (event) {
+            var ta = document.getElementById("responseText");
+            ta.value = "Websocket 关闭";
+        };
+
+    }else {
+        alert("抱歉，您的浏览器不支持Websocket");
+    }
+
+    function send(message) {
+        if(socket.readyState == WebSocket.OPEN){
+            socket.send(message);
+        }else {
+            alert("WebSocket 已断开或者链接失败")
+        }
+    }
+</script>
+<br>
+<form onsubmit="return false">
+    <input type="text" name="message" value="wuhulala"/>
+    <br><br>
+    <input type="button" value="发送消息" onclick="send(this.form.message.value)"/>
+    <hr color="blue"/>
+    <h3>服务器应答消息</h3>
+    <textarea id="responseText" style="width: 500px;height: 300px;"></textarea>
+
+</form>
+
+</body>
+</html>
