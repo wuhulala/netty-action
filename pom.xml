@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.wuhulala</groupId>
-    <artifactId>netty-study</artifactId>
+    <artifactId>netty-action</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
@@ -35,10 +35,6 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.25</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
-       
-
     </dependencies>
     <build>
         <plugins>
