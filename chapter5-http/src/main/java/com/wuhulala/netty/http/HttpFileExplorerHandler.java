@@ -1,6 +1,6 @@
 package com.wuhulala.netty.http;
 
-import com.wuhulala.api.exception.BaseException;
+import com.wuhulala.exception.BaseException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -8,7 +8,6 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
-
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -128,7 +127,7 @@ public class HttpFileExplorerHandler extends SimpleChannelInboundHandler<FullHtt
             try {
                 uri = URLDecoder.decode(uri, "ISO-8859-1");
             } catch (UnsupportedEncodingException e1) {
-                throw new BaseException(true, "-1", "解析编码失败");
+                throw new BaseException("解析编码失败");
             }
         }
 
