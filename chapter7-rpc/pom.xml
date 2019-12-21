@@ -21,6 +21,7 @@
         <module>rpc-bom</module>
         <module>rpc-examples</module>
         <module>rpc-core</module>
+        <module>rpc-scaner</module>
     </modules>
     <dependencyManagement>
 
