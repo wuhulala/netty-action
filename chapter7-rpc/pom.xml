@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>chapter-rpc</artifactId>
+    <artifactId>chapter7-rpc</artifactId>
     <packaging>pom</packaging>
     <modules>
         <module>rpc-registry</module>
