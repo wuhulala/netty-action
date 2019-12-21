@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
 public class ExtensionLoader<T> {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
 
-    private static final String EXTENSION_CONF_DIRECTORY = "META-INF/extensions/";
+    private static final String EXTENSION_CONF_DIRECTORY = "META-INF/rpc/";
 
     private static final String PREFIX_ADAPTIVE_CLASS = "*";
     private static final String PREFIX_WRAPPER_CLASS = "+";
