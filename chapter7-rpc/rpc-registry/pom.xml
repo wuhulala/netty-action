@@ -10,6 +10,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>rpc-registry</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>registry-api</module>
+        <module>registry-nacos</module>
+    </modules>
 
 
 </project>
