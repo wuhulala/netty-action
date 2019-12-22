@@ -7,6 +7,7 @@ import com.wuhulala.rpc.exception.RpcExeception;
 import com.wuhulala.rpc.registry.RegistryFactory;
 import com.wuhulala.rpc.registry.RegistryService;
 import com.wuhulala.rpc.scaner.ServiceScanner;
+import com.wuhulala.rpc.util.ConfigUtils;
 import com.wuhulala.rpc.util.PropsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class RpcBootstrap implements LifeCycle {
         logger.info("init configuration, props path is {}", propPath);
         // 0. 初始化配置
         Properties rpcProps = loadProperties(propPath);
+        ConfigUtils.setProperties(rpcProps);
 
         init(rpcProps);
 
@@ -53,16 +55,26 @@ public class RpcBootstrap implements LifeCycle {
 
         // 1. 扫描提供者，注册到注册中心
         List<RpcDesc> rpcDescs = scanRpcDescList(rpcProps);
+        saveToRegisterCenter(rpcDescs);
 
         // 2. 扫描消费者，看是否需要创建本地实例
 
         // 3. 启动结束
+        while (true){}
+    }
+
+    private void saveToRegisterCenter(List<RpcDesc> rpcDescs) {
+        logger.info("开始将服务注册到注册中心...");
+        REGISTRY_CACHE.forEach(registry -> {
+            rpcDescs.forEach(registry::register);
+            logger.info("服务注册到注册中心{}成功，并成功注册了{}个服务", registry.getClass(), rpcDescs.size());
+        });
     }
 
     private List<RpcDesc> scanRpcDescList(Properties rpcProps) {
         String scanTypes = Optional.ofNullable(rpcProps.getProperty(RPC_SCANNER_TYPE))
                 .orElseThrow(() -> new RpcExeception("未配置服务扫描器类型"));
-        logger.info("scan service use [] Scanner ", scanTypes);
+        logger.info("scan service use [{}] Scanner ", scanTypes);
         return Stream.of(RpcDesc.COMMA_SPLIT_PATTERN.split(scanTypes)).flatMap(scanType -> {
             String packageName = rpcProps.getProperty(MessageFormat.format(RPC_SCANNER_PACKAGE_TEMPLATE, scanType));
             return ExtensionLoader.getExtensionLoader(ServiceScanner.class)

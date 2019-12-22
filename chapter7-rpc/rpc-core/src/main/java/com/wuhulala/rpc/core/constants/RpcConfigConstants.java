@@ -9,7 +9,7 @@ package com.wuhulala.rpc.core.constants;
  */
 public interface RpcConfigConstants {
 
-    String RPC_SCANNER_PACKAGE_TEMPLATE = "rpc.service.{0}.package";
+    String RPC_SCANNER_PACKAGE_TEMPLATE = "rpc.service.scan.{0}.package";
 
     String RPC_SCANNER_TYPE = "rpc.service.scan.type";
 }

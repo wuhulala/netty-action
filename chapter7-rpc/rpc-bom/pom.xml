@@ -10,6 +10,7 @@
 
     <properties>
         <nacos.version>1.1.4</nacos.version>
+        <spring.version>5.1.7.RELEASE</spring.version>
     </properties>
 
     <dependencyManagement>
@@ -28,6 +29,11 @@
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
