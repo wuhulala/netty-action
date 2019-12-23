@@ -21,6 +21,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpResponseEncoder;
 import java.util.List;
 
 /**
@@ -28,9 +30,9 @@ import java.util.List;
  */
 final public class NettyCodecAdapter {
 
-    private final ChannelHandler encoder = new InternalEncoder();
+    private final ChannelHandler encoder = new HttpRequestDecoder();
 
-    private final ChannelHandler decoder = new InternalDecoder();
+    private final ChannelHandler decoder = new HttpResponseEncoder();
 
     public NettyCodecAdapter() {
 

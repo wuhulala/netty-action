@@ -69,8 +69,10 @@ public class NettyServer implements Server {
 
                         ch.pipeline()
                                 .addLast("logging", new LoggingHandler(LogLevel.INFO))//for debug
-                                .addLast("decoder", adapter.getDecoder())
-                                .addLast("encoder", adapter.getEncoder())
+//                                .addLast("decoder", adapter.getDecoder())
+//                                .addLast("http-aggregator", new HttpObjectAggregator(65536))
+//                                .addLast("encoder", adapter.getEncoder())
+//                                .addLast("http-chunked", new ChunkedWriteHandler())
                                 .addLast("server-idle-handler", new IdleStateHandler(0, 0, 60 * 1000, MILLISECONDS))
                                 .addLast("handler", nettyServerHandler);
                     }

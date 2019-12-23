@@ -17,11 +17,19 @@
 package com.wuhulala.rpc.server.netty4;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * NettyServerHandler.
@@ -36,30 +44,66 @@ public class NettyServerHandler extends ChannelDuplexHandler {
     }
 
 
+    /**
+     * 连接成功
+     *
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
+        logger.info(">>>>>>>>channelActive:" + ctx.name());
     }
 
+    /**
+     * 断开连接
+     *
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.info(">>>>>>>>channelInactive:" + ctx.name());
 
     }
 
+    /**
+     * 可读
+     *
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info(">>>>>>>>channelRead#{}: {}", ctx.channel().id(), msg);
+        // 必须是DefaultHttpResponse 不能是FullHttpResponse
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, OK);
+        ByteBuf buffer = Unpooled.copiedBuffer("hello ....\r\n", CharsetUtil.UTF_8);
 
+        response.content().writeBytes(buffer);
+
+        ctx.write(response);
     }
 
-
+    /**
+     * 可写
+     *
+     * @param ctx
+     * @param msg
+     * @param promise
+     * @throws Exception
+     */
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         super.write(ctx, msg, promise);
-
+        logger.info(">>>>>>>> write:" + ctx.name() + ":" + msg);
+//        ctx.writeAndFlush(msg);
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        logger.info(">>>>>>>> userEventTriggered:" + ctx.name() + ":" + evt);
 
         super.userEventTriggered(ctx, evt);
     }
@@ -68,5 +112,6 @@ public class NettyServerHandler extends ChannelDuplexHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
 
+        logger.info("exceptionCaught:" + ctx.name() + ":" + cause);
     }
 }
