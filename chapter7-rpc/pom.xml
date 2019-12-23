@@ -22,6 +22,7 @@
         <module>rpc-examples</module>
         <module>rpc-core</module>
         <module>rpc-scanner</module>
+        <module>rpc-server</module>
     </modules>
     <dependencyManagement>
 

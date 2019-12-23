@@ -42,7 +42,6 @@ public class ConfigUtils {
     }
 
 
-
     public static Properties getProperties() {
         if (PROPERTIES == null) {
             synchronized (ConfigUtils.class) {
@@ -70,6 +69,15 @@ public class ConfigUtils {
         if (properties != null) {
             getProperties().putAll(properties);
         }
+    }
+
+    public static int getInt(String key) {
+        return CastUtil.castInt(getProperty(key));
+    }
+
+
+    public static int getInt(String key, int defaultValue) {
+        return CastUtil.castInt(getProperty(key, defaultValue + ""), defaultValue);
     }
 
     public static String getProperty(String key) {

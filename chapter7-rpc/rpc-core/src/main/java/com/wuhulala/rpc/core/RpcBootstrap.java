@@ -7,6 +7,7 @@ import com.wuhulala.rpc.exception.RpcExeception;
 import com.wuhulala.rpc.registry.RegistryFactory;
 import com.wuhulala.rpc.registry.RegistryService;
 import com.wuhulala.rpc.scaner.ServiceScanner;
+import com.wuhulala.rpc.server.Server;
 import com.wuhulala.rpc.util.ConfigUtils;
 import com.wuhulala.rpc.util.PropsUtil;
 import org.slf4j.Logger;
@@ -59,8 +60,20 @@ public class RpcBootstrap implements LifeCycle {
 
         // 2. 扫描消费者，看是否需要创建本地实例
 
-        // 3. 启动结束
+        // 3. 对外提供服务
+        try {
+            openServer();
+        } catch (Throwable e) {
+            logger.error("启动服务器失败", e);
+            return;
+        }
+
+        // 4. 启动结束
         while (true){}
+    }
+
+    private void openServer() throws Throwable {
+        ExtensionLoader.getExtensionLoader(Server.class).getExtension(ConfigUtils.getProperty("rpc.server.type")).open();
     }
 
     private void saveToRegisterCenter(List<RpcDesc> rpcDescs) {
