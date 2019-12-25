@@ -23,6 +23,7 @@
         <module>rpc-core</module>
         <module>rpc-scanner</module>
         <module>rpc-server</module>
+        <module>rpc-serialization</module>
     </modules>
     <dependencyManagement>
 
