@@ -17,12 +17,8 @@
 package com.wuhulala.rpc.server.netty4;
 
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,10 +71,11 @@ public class NettyServerHandler extends ChannelDuplexHandler {
         logger.info(">>>>>>>>channelRead#{}: {}", ctx.channel().id(), msg);
         // 必须是DefaultHttpResponse 不能是FullHttpResponse
 //        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, OK);
-        ByteBuf buffer = Unpooled.copiedBuffer("hello ....\r\n", CharsetUtil.UTF_8);
+//        ByteBuf buffer = Unpooled.copiedBuffer("hello ....\r\n", CharsetUtil.UTF_8);
 //        response.content().writeBytes(buffer);
 
-        ctx.channel().write(buffer);
+        String resp = "hello, 我是服务器";
+        ctx.write(resp);
 
 
     }
@@ -91,12 +88,12 @@ public class NettyServerHandler extends ChannelDuplexHandler {
      * @param promise
      * @throws Exception
      */
-    @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        super.write(ctx, msg, promise);
-        logger.info(">>>>>>>> write:" + ctx.name() + ":" + msg);
-//        ctx.channel().flush();
-    }
+//    @Override
+//    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+//        super.write(ctx, msg, promise);
+//        logger.info(">>>>>>>> write:" + ctx.name() + ":" + msg);
+////        ctx.channel().flush();
+//    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {

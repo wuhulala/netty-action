@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
  */
 final public class NettyCodecAdapter {
 
-    private final ChannelHandler encoder = new StringDecoder();
+    private final ChannelHandler encoder = new StringEncoder();
 
     private final ChannelHandler decoder = new StringDecoder();
 
