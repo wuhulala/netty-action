@@ -13,12 +13,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Netty服务器实现
@@ -69,16 +66,16 @@ public class NettyServer implements Server {
 
                         ch.pipeline()
                                 .addLast("logging", new LoggingHandler(LogLevel.INFO))//for debug
-//                                .addLast("decoder", adapter.getDecoder())
+                                .addLast("decoder", adapter.getDecoder())
 //                                .addLast("http-aggregator", new HttpObjectAggregator(65536))
-//                                .addLast("encoder", adapter.getEncoder())
+                                .addLast("encoder", adapter.getEncoder())
 //                                .addLast("http-chunked", new ChunkedWriteHandler())
-                                .addLast("server-idle-handler", new IdleStateHandler(0, 0, 60 * 1000, MILLISECONDS))
+//                                .addLast("server-idle-handler", new IdleStateHandler(0, 0, 60 * 1000, MILLISECONDS))
                                 .addLast("handler", nettyServerHandler);
                     }
                 });
         InetSocketAddress address = getBindAddress();
-        ChannelFuture channelFuture = bootstrap.bind(address).sync();
+        ChannelFuture channelFuture = bootstrap.bind(address);
         //https://my.oschina.net/ditan/blog/646863
         logger.info("Start {} bind {}, export {}", getClass().getSimpleName(), address, address);
 
