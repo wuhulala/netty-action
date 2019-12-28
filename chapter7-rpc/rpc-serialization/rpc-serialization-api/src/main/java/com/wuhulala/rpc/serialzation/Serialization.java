@@ -17,7 +17,6 @@
 package com.wuhulala.rpc.serialzation;
 
 import com.alibaba.cooma.Extension;
-import com.wuhulala.rpc.bean.RpcDesc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,7 +54,7 @@ public interface Serialization {
      * @return serializer
      * @throws IOException
      */
-    ObjectOutput serialize(RpcDesc url, OutputStream output) throws IOException;
+    ObjectOutput serialize(OutputStream output) throws IOException;
 
     /**
      * Get a deserialization implementation instance
@@ -65,6 +64,6 @@ public interface Serialization {
      * @return deserializer
      * @throws IOException
      */
-    ObjectInput deserialize(RpcDesc url, InputStream input) throws IOException;
+    ObjectInput deserialize(InputStream input) throws IOException;
 
 }
