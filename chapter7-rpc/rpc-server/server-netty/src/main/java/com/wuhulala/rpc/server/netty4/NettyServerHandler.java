@@ -18,10 +18,13 @@ package com.wuhulala.rpc.server.netty4;
 
 
 import com.alibaba.cooma.ExtensionLoader;
+import com.wuhulala.rpc.scaner.ServiceScanner;
 import com.wuhulala.rpc.serialzation.Cleanable;
 import com.wuhulala.rpc.serialzation.ObjectOutput;
 import com.wuhulala.rpc.serialzation.Serialization;
 import com.wuhulala.rpc.util.BytesUtils;
+import com.wuhulala.rpc.util.ConfigUtils;
+import com.wuhulala.rpc.util.ReflectUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
@@ -29,6 +32,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.MessageFormat;
 
 /**
  * NettyServerHandler.
@@ -93,11 +99,11 @@ public class NettyServerHandler extends ChannelDuplexHandler {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!(msg instanceof Message)) {
+        if (!(msg instanceof Request)) {
             return;
         }
-        Message message = (Message) msg;
-        logger.info(">>>>>>>>channelRead#{}: {}", ctx.channel().id(), message.getId());
+        Request request = (Request) msg;
+        logger.info(">>>>>>>>channelRead#{}: {}", ctx.channel().id(), request.getId());
         // 必须是DefaultHttpResponse 不能是FullHttpResponse
 //        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, OK);
 //        ByteBuf buffer = Unpooled.copiedBuffer("hello ....\r\n", CharsetUtil.UTF_8);
@@ -105,6 +111,7 @@ public class NettyServerHandler extends ChannelDuplexHandler {
         ByteBuf buffer = Unpooled.buffer();
 //
 
+        Object result = doHandleResult(request);
         int savedWriteIndex = buffer.writerIndex();
 //        ctx.channel().
         try {
@@ -120,7 +127,7 @@ public class NettyServerHandler extends ChannelDuplexHandler {
             byte status = 20;
             header[3] = status;
             // set request id.
-            BytesUtils.long2bytes(message.getId(), header, 4);
+            BytesUtils.long2bytes(request.getId(), header, 4);
 
             buffer.writerIndex(savedWriteIndex + HEADER_LENGTH);
             ChannelBufferOutputStream bos = new ChannelBufferOutputStream(buffer);
@@ -129,7 +136,7 @@ public class NettyServerHandler extends ChannelDuplexHandler {
 //            out.writeByte()|;
             // 设置响应类型
             out.writeByte(RESPONSE_VALUE);
-            out.writeUTF("Hello " + message.getId());
+            out.writeObject(result);
 
             out.flushBuffer();
             if (out instanceof Cleanable) {
@@ -164,20 +171,29 @@ public class NettyServerHandler extends ChannelDuplexHandler {
         ctx.write(buffer);
     }
 
-    /**
-     * 可写
-     *
-     * @param ctx
-     * @param msg
-     * @param promise
-     * @throws Exception
-     */
-//    @Override
-//    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-//        super.write(ctx, msg, promise);
-//        logger.info(">>>>>>>> write:" + ctx.name() + ":" + msg);
-////        ctx.channel().flush();
-//    }
+    private Object doHandleResult(Request request) {
+        String className = request.getClassName();
+        Class<?> serviceClass;
+        try {
+            serviceClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            logger.error("接口类不存在{0}, 可能是泛化调用代码写的不对，也可能是无效的包", className, e);
+            return MessageFormat.format("暂未实现服务,{0}!请联系服务提供方", className);
+        }
+
+        ServiceScanner scanner = ExtensionLoader.getExtensionLoader(ServiceScanner.class).getExtension(ConfigUtils.getProperty(ServiceScanner.SCANNER_TYPE));
+        Object serviceInstance = scanner.getInvoker(serviceClass);
+        Object result = "";
+        try {
+            Method method = ReflectUtils.findMethodByMethodSignature2(serviceClass, request.getMethodName(), request.getParameterTypes());
+            result = method.invoke(serviceInstance, request.getArguments());
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            logger.error("服务#{} 执行失败!", request, e);
+            result = MessageFormat.format("服务{0} 执行失败", request);
+        }
+        return result;
+    }
+
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();

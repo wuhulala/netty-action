@@ -28,6 +28,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -79,11 +80,8 @@ final public class NettyCodecAdapter {
             int saveReaderIndex;
 
             do {
-                // 堆内存
-//            ByteBuf messgae =  new UnpooledDirectByteBuf();
+                // 记录初始读取指针，便于当消息不是一个完整的报文的时候，重置到当前位置
                 saveReaderIndex = input.readerIndex();
-
-
                 int readable = input.readableBytes();
 
                 // 1. check header is complete
@@ -94,69 +92,41 @@ final public class NettyCodecAdapter {
                     break;
                 }
 
+                // 1.1 parse header
                 byte[] header = new byte[Math.min(readable, HEADER_LENGTH)];
                 input.readBytes(header);
-                // 1.1 parse header
-                int len = BytesUtils.bytes2int(header, 12);
-                System.out.println(header);
-                System.out.println(len);
-
 
                 // 2. check body is complete
+                int len = BytesUtils.bytes2int(header, 12);
                 int expectedLen = len + HEADER_LENGTH;
                 // if not complete
                 if (expectedLen > readable) {
+                    input.readerIndex(saveReaderIndex);
                     logger.info("channel#{} message body is not complete！ expect body length is {}, actual is {}", ctx.channel().id(), expectedLen, readable);
                     break;
                 }
 
-
-                // 3. resolve body
-
-                // 3.1 read serialization type
-                NettyByteBufInputStream is = new NettyByteBufInputStream(input);
-                ObjectInput obj = ExtensionLoader.getExtensionLoader(Serialization.class).getExtension("fastjson").deserialize(is);
-
-                // 3.2 read request id
-                long id = BytesUtils.bytes2long(header, 4);
-
-                String dubboVersion = obj.readUTF();
-                System.out.println(dubboVersion);
-                out.add(new Message(id, is));
+                //////////////// 3. resolve body ////////////////
+                Request request = decodeRequest(input, header);
+                logger.info("received message is {}", request);
+                out.add(request);
             } while (input.isReadable());
-//            ChannelBuffer message = new NettyBackedChannelBuffer(input);
-//
-//            NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);
-//
-//            try {
-//                // decode object.
-//                do {
-//                    int saveReaderIndex = message.readerIndex();
-//                    Object msg = codec.decode(channel, message);
-//                    if (msg == Codec2.DecodeResult.NEED_MORE_INPUT) {
-//                        message.readerIndex(saveReaderIndex);
-//                        break;
-//                    } else {
-//                        //is it possible to go here ?
-//                        if (saveReaderIndex == message.readerIndex()) {
-//                            throw new IOException("Decode without read data.");
-//                        }
-//                        if (msg != null) {
-//                            out.add(msg);
-//                        }
-//                    }
-//                } while (message.readable());
-//            } finally {
-//                NettyChannel.removeChannelIfDisconnected(ctx.channel());
-//            }
+        }
+
+        private Request decodeRequest(ByteBuf input, byte[] header) throws IOException {
+            // 3.1 read serialization type
+            NettyByteBufInputStream is = new NettyByteBufInputStream(input);
+            ObjectInput obj = ExtensionLoader.getExtensionLoader(Serialization.class).getExtension("fastjson").deserialize(is);
+
+            // 3.2 read request id
+            long id = BytesUtils.bytes2long(header, 4);
+
+            // 3.3 read request
+            Request request = new Request(id, obj);
+            request.decode();
+            return request;
         }
     }
 
 
-    public static void main(String[] args) {
-        byte[] header = new byte[16];
-        BytesUtils.int2bytes(183, header, 12);
-        int a = BytesUtils.bytes2int(header, 12);
-        System.out.println(a);
-    }
 }

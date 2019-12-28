@@ -4,6 +4,7 @@ import com.wuhulala.rpc.annotation.RpcService;
 import com.wuhulala.rpc.bean.RpcDesc;
 import com.wuhulala.rpc.exception.RpcExeception;
 import com.wuhulala.rpc.scaner.ServiceScanner;
+import com.wuhulala.rpc.scanner.util.SpringContext;
 import com.wuhulala.rpc.util.ClassUtils;
 import com.wuhulala.rpc.util.ConfigUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +14,10 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.lang.Nullable;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,15 +33,14 @@ import static com.wuhulala.rpc.constants.CommonConstants.*;
  */
 public class RpcServiceAnnotationScanner implements ServiceScanner {
 
-    static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
+    private static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
+
     private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
     private static final Logger logger = LoggerFactory.getLogger(RpcServiceAnnotationScanner.class);
 
-
     @Nullable
     private ResourcePatternResolver resourcePatternResolver;
-
 
     public RpcServiceAnnotationScanner() {
         this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(new DefaultResourceLoader());
@@ -52,6 +55,11 @@ public class RpcServiceAnnotationScanner implements ServiceScanner {
             result.addAll(doScanRpcServices(packageToScan));
         }
         return result;
+    }
+
+    @Override
+    public <T> T getInvoker(Class<T> clazz) {
+        return SpringContext.getBean(clazz);
     }
 
     @Nullable

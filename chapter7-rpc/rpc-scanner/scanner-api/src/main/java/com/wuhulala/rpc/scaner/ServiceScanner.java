@@ -14,5 +14,15 @@ import java.util.List;
 @Extension
 public interface ServiceScanner {
 
+    String SCANNER_TYPE = "rpc.service.scan.type";
+
     List<RpcDesc> scan(String packageName);
+
+    /**
+     * 查询Invoker
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    <T> T getInvoker(Class<T> clazz);
 }
