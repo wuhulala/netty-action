@@ -18,6 +18,7 @@ package com.wuhulala.rpc.server.netty4;
 
 
 import com.alibaba.cooma.ExtensionLoader;
+import com.wuhulala.rpc.bean.RpcInvocation;
 import com.wuhulala.rpc.scaner.ServiceScanner;
 import com.wuhulala.rpc.serialzation.Cleanable;
 import com.wuhulala.rpc.serialzation.ObjectOutput;
@@ -182,7 +183,9 @@ public class NettyServerHandler extends ChannelDuplexHandler {
         }
 
         ServiceScanner scanner = ExtensionLoader.getExtensionLoader(ServiceScanner.class).getExtension(ConfigUtils.getProperty(ServiceScanner.SCANNER_TYPE));
-        Object serviceInstance = scanner.getInvoker(serviceClass);
+        RpcInvocation invocation = new RpcInvocation();
+        invocation.setServiceClass(serviceClass);
+        Object serviceInstance = scanner.getInvoker(invocation);
         Object result = "";
         try {
             Method method = ReflectUtils.findMethodByMethodSignature2(serviceClass, request.getMethodName(), request.getParameterTypes());

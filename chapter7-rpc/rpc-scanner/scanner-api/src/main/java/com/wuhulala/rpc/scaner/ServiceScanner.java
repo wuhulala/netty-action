@@ -1,6 +1,7 @@
 package com.wuhulala.rpc.scaner;
 
 import com.alibaba.cooma.Extension;
+import com.wuhulala.rpc.bean.Invocation;
 import com.wuhulala.rpc.bean.RpcDesc;
 import java.util.List;
 
@@ -24,5 +25,5 @@ public interface ServiceScanner {
      * @param <T>
      * @return
      */
-    <T> T getInvoker(Class<T> clazz);
+    <T> T getInvoker(Invocation clazz);
 }

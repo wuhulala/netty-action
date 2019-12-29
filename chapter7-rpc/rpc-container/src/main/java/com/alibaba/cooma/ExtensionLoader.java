@@ -66,6 +66,8 @@ public class ExtensionLoader<T> {
 
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
+    private Map<String, T> EXTENTIONS_CACHE;
+
     /**
      * {@link ExtensionLoader}的工厂方法。
      *
@@ -94,6 +96,21 @@ public class ExtensionLoader<T> {
             loader = (ExtensionLoader<T>) EXTENSION_LOADERS.get(type);
         }
         return loader;
+    }
+
+
+    public void registerExtension(String name, T extension) {
+        registerExtension(name, extension, true);
+    }
+
+    public void registerExtension(String name, T extension, boolean override) {
+        if (!override) {
+            T oldExtension = EXTENTIONS_CACHE.get(name);
+            if (oldExtension != null) {
+                throw new IllegalStateException("current extension of name#" + name + " existed, if you want override, please adjust you arguments!");
+            }
+        }
+        EXTENTIONS_CACHE.put(name, extension);
     }
 
     public T getExtension(String name) {
@@ -126,7 +143,12 @@ public class ExtensionLoader<T> {
     public T getExtension(String name, Map<String, String> properties, List<String> wrappers) {
         if (StringUtils.isEmpty(name))
             throw new IllegalArgumentException("Extension name == null");
-        T extension = createExtension(name, properties);
+        T extension = EXTENTIONS_CACHE.get(name);
+        if (extension != null) {
+            logger.info("use cache extension of name#{}", name);
+            return extension;
+        }
+        extension = createExtension(name, properties);
         inject(extension, properties);
         return createWrapper(extension, properties, wrappers);
     }
@@ -255,6 +277,8 @@ public class ExtensionLoader<T> {
             }
         }
         defaultExtension = defaultExt;
+
+        EXTENTIONS_CACHE = new ConcurrentHashMap<>();
     }
 
     @SuppressWarnings("unchecked")

@@ -1,0 +1,78 @@
+package com.wuhulala.rpc.bean;
+
+import java.util.Map;
+
+/**
+ * @author wuhulala<br>
+ * @date 2019/12/29<br>
+ * @since v1.0<br>
+ */
+@SuppressWarnings("ALL")
+public class RpcInvocation implements Invocation {
+
+    private Class<?> serviceClass;
+
+    private String methodName;
+
+    private Class<?>[] parameterTypes;
+
+    private Object[] arguments;
+
+    private Map<String, String> attachments;
+
+    private transient Class<?> returnType;
+
+    @Override
+    public Class<?> getServiceClass() {
+        return serviceClass;
+    }
+
+    public void setServiceClass(Class<?> serviceClass) {
+        this.serviceClass = serviceClass;
+    }
+
+    @Override
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    @Override
+    public Class<?>[] getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public void setParameterTypes(Class<?>[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    @Override
+    public Object[] getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(Object[] arguments) {
+        this.arguments = arguments;
+    }
+
+    @Override
+    public Map<String, String> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Map<String, String> attachments) {
+        this.attachments = attachments;
+    }
+
+    @Override
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(Class<?> returnType) {
+        this.returnType = returnType;
+    }
+}
