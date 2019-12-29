@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @since v1.0<br>
  */
 @ComponentScan
-@RpcComponentScan("com.wuhulala.rpc.example")
+@RpcComponentScan("com.wuhulala.rpc.example.api.impl")
 public class ProviderApplication {
 
     public static void main(String[] args) {

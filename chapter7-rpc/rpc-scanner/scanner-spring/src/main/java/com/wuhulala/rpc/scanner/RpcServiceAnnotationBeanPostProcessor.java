@@ -119,7 +119,7 @@ public class RpcServiceAnnotationBeanPostProcessor implements BeanDefinitionRegi
 
         registerRpcServiceBean(packagesToScan, registry);
 
-//        registry.registerBeanDefinition();
+        registerToContainer();
     }
 
     private void registerRpcServiceBean(Set<String> packages, BeanDefinitionRegistry registry) {
@@ -160,7 +160,11 @@ public class RpcServiceAnnotationBeanPostProcessor implements BeanDefinitionRegi
     private void scanRpcDesc(String onePackage, Class<?> beanClass) {
         synchronized (this) {
             Set<RpcDesc> rpcDescs = parseRpcDesc(beanClass);
-            Optional.ofNullable(RPC_DESC_CACHE.get(onePackage)).orElseGet(LinkedList::new).addAll(rpcDescs);
+            Optional.ofNullable(RPC_DESC_CACHE.get(onePackage)).orElseGet(()->{
+                    List<RpcDesc> list = new LinkedList();
+                    RPC_DESC_CACHE.put(onePackage, list);
+                    return list;
+            }).addAll(rpcDescs);
             logger.info("从{} 中扫描 {} 个RpcDesc", beanClass, rpcDescs.size());
         }
     }

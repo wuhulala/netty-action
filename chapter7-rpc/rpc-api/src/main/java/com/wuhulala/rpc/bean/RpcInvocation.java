@@ -1,5 +1,6 @@
 package com.wuhulala.rpc.bean;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -60,6 +61,9 @@ public class RpcInvocation implements Invocation {
 
     @Override
     public Map<String, String> getAttachments() {
+        if (attachments == null) {
+            attachments = new HashMap<>();
+        }
         return attachments;
     }
 
