@@ -1,5 +1,6 @@
 package com.wuhulala.rpc.bean;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +23,14 @@ public class RpcInvocation implements Invocation {
     private Map<String, String> attachments;
 
     private transient Class<?> returnType;
+
+    public RpcInvocation() {
+    }
+
+    public RpcInvocation(Method method, Object[] args) {
+        this.methodName = method.getName();
+        this.arguments = args;
+    }
 
     @Override
     public Class<?> getServiceClass() {

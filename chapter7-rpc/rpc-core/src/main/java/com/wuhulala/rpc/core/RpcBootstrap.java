@@ -3,7 +3,7 @@ package com.wuhulala.rpc.core;
 import com.alibaba.cooma.ExtensionLoader;
 import com.wuhulala.rpc.LifeCycle;
 import com.wuhulala.rpc.bean.RpcDesc;
-import com.wuhulala.rpc.exception.RpcExeception;
+import com.wuhulala.rpc.exception.RpcException;
 import com.wuhulala.rpc.registry.RegistryFactory;
 import com.wuhulala.rpc.registry.RegistryService;
 import com.wuhulala.rpc.scaner.ServiceScanner;
@@ -59,6 +59,8 @@ public class RpcBootstrap implements LifeCycle {
         saveToRegisterCenter(rpcDescs);
 
         // 2. 扫描消费者，看是否需要创建本地实例
+        // 读取所有ReferenceBean 初始化
+
 
         // 3. 对外提供服务
         try {
@@ -86,7 +88,7 @@ public class RpcBootstrap implements LifeCycle {
 
     private List<RpcDesc> scanRpcDescList(Properties rpcProps) {
         String scanTypes = Optional.ofNullable(rpcProps.getProperty(RPC_SCANNER_TYPE))
-                .orElseThrow(() -> new RpcExeception("未配置服务扫描器类型"));
+                .orElseThrow(() -> new RpcException("未配置服务扫描器类型"));
         logger.info("scan service use [{}] Scanner ", scanTypes);
         return Stream.of(RpcDesc.COMMA_SPLIT_PATTERN.split(scanTypes)).flatMap(scanType -> {
             String packageName = rpcProps.getProperty(MessageFormat.format(RPC_SCANNER_PACKAGE_TEMPLATE, scanType));
@@ -109,7 +111,7 @@ public class RpcBootstrap implements LifeCycle {
         logger.info("init registry of address {}", registryAddr);
 
         String registryDescStr = Optional.ofNullable(registryAddr)
-                .orElseThrow(() -> new RpcExeception("未配置注册中心"));
+                .orElseThrow(() -> new RpcException("未配置注册中心"));
         RpcDesc registryDesc = RpcDesc.valueOf(registryDescStr);
         RegistryService registry = findRegistryFactory(registryDesc);
         REGISTRY_CACHE.add(registry);

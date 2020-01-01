@@ -2,7 +2,7 @@ package com.wuhulala.rpc.scanner;
 
 import com.alibaba.cooma.ExtensionLoader;
 import com.wuhulala.rpc.annotation.RpcService;
-import com.wuhulala.rpc.annotation.RpcServiceBean;
+import com.wuhulala.rpc.scanner.bean.RpcServiceBean;
 import com.wuhulala.rpc.bean.Invocation;
 import com.wuhulala.rpc.bean.RpcDesc;
 import com.wuhulala.rpc.scaner.ServiceScanner;

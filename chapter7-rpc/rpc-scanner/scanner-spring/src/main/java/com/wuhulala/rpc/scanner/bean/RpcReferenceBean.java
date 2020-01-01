@@ -1,18 +1,27 @@
-package com.wuhulala.rpc.annotation;
+package com.wuhulala.rpc.scanner.bean;
+
+import com.wuhulala.rpc.bean.RpcInvocation;
+import com.wuhulala.rpc.protocol.invoker.RpcInvoker;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * @author wuhulala<br>
  * @date 2019/12/29<br>
  * @since v1.0<br>
  */
-public class RpcServiceBean<T> {
+public class RpcReferenceBean<T> {
 
-    private String interfaceName;
+    private Class<T> interfaceClass;
 
     private String group;
 
     private String version;
 
+    /**
+     * 服务实现代理
+     */
     private T ref;
     /**
      * 协议名称
@@ -31,6 +40,8 @@ public class RpcServiceBean<T> {
 
     private Class<?> type;
 
+    private volatile boolean initialized;
+
     public String getGroup() {
         return group;
     }
@@ -47,12 +58,12 @@ public class RpcServiceBean<T> {
         this.version = version;
     }
 
-    public String getInterfaceName() {
-        return interfaceName;
+    public Class<?> getInterfaceClass() {
+        return interfaceClass;
     }
 
-    public void setInterfaceName(String interfaceName) {
-        this.interfaceName = interfaceName;
+    public void setInterfaceClass(Class<?> interfaceClass) {
+        this.interfaceClass = (Class<T>) interfaceClass;
     }
 
     public T getRef() {
@@ -117,5 +128,30 @@ public class RpcServiceBean<T> {
 
     public void setType(Class<?> type) {
         this.type = type;
+    }
+
+    public void init() {
+        if (initialized) {
+            return;
+        }
+
+//        Invoker invoker = ExtensionLoader.getExtensionLoader(Protocol.class).getExtension("");
+        ref = createServiceProxy();
+//        TODO
+//        ref = createServiceProxy(map);
+
+        initialized = true;
+    }
+
+    private T createServiceProxy() {
+
+        RpcInvoker<T> invoker = new RpcInvoker<T>(interfaceClass);
+
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                return invoker.invoke(new RpcInvocation(method, args));
+            }
+        });
     }
 }
