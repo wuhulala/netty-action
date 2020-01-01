@@ -34,6 +34,8 @@ import java.util.List;
 import static com.wuhulala.rpc.client.netty4.NettyClientHandler.*;
 
 /**
+ * TODO 和server合并
+ *
  * NettyCodecAdapter.
  */
 final public class NettyCodecAdapter {
@@ -140,9 +142,10 @@ final public class NettyCodecAdapter {
 
             } else {
                 // 3.3 read request
-                Request request = new Request(id, obj);
-                request.decode();
-                return request;
+//                Request request = new Request(id, obj);
+//                request.decode();
+//                return request;
+                return null;
             }
         }
     }
