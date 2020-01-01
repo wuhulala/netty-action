@@ -17,6 +17,7 @@
 package com.wuhulala.rpc.scanner;
 
 import com.wuhulala.rpc.scanner.annotation.RpcComponentScan;
+import com.wuhulala.rpc.scanner.util.BeanRegistrar;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -71,15 +72,12 @@ public class RpcComponentScanRegistrar implements ImportBeanDefinitionRegistrar 
     }
 
     /**
+     * Register @RpcReference Annotation Bean Processor
      *
      * @param registry {@link BeanDefinitionRegistry}
      */
     private void registerReferenceAnnotationBeanPostProcessor(BeanDefinitionRegistry registry) {
-
-//        // Register @Reference Annotation Bean Processor
-//        BeanRegistrar.registerInfrastructureBean(registry,
-//                ReferenceAnnotationBeanPostProcessor.BEAN_NAME, ReferenceAnnotationBeanPostProcessor.class);
-
+        BeanRegistrar.registerInfrastructureBean(registry, RpcReferenceBeanPostProcessor.BEAN_NAME, RpcReferenceBeanPostProcessor.class);
     }
 
     private Set<String> getPackagesToScan(AnnotationMetadata metadata) {

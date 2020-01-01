@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RpcReferenceBeanPostProcessor extends AnnotationInjectedBeanPostProcessor {
 
+    public static final String BEAN_NAME = "rpcInner#RpcReferenceBeanPostProcessor";
+
     private Map<String, RpcReferenceBean> REFERENCE_BEAN_CACHE = new ConcurrentHashMap<>(32);
 
     @Override
