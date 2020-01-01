@@ -1,5 +1,6 @@
 package com.wuhulala.rpc.scanner;
 
+import com.wuhulala.rpc.annotation.RpcReference;
 import com.wuhulala.rpc.scanner.bean.RpcReferenceBean;
 import com.wuhulala.rpc.scanner.util.AnnotationUtils;
 import org.springframework.beans.factory.annotation.InjectionMetadata;
@@ -22,6 +23,10 @@ public class RpcReferenceBeanPostProcessor extends AnnotationInjectedBeanPostPro
 
     private Map<String, RpcReferenceBean> REFERENCE_BEAN_CACHE = new ConcurrentHashMap<>(32);
 
+    public RpcReferenceBeanPostProcessor() {
+        super(RpcReference.class);
+    }
+
     @Override
     protected Object doGetInjectedBean(AnnotationAttributes attributes, Object bean, String beanName, Class<?> injectedType, InjectionMetadata.InjectedElement injectedElement) throws Exception {
 
@@ -40,8 +45,8 @@ public class RpcReferenceBeanPostProcessor extends AnnotationInjectedBeanPostPro
         return Optional.ofNullable(REFERENCE_BEAN_CACHE.get(referenceBeanName)).orElseGet(() -> {
             RpcReferenceBean referenceBean = new RpcReferenceBean();
             referenceBean.setInterfaceClass(injectedType);
-            referenceBean.setGroup(attributes.getString("group"));
-            referenceBean.setVersion(attributes.getString("version"));
+//            referenceBean.setGroup(attributes.getString("group"));
+//            referenceBean.setVersion(attributes.getString("version"));
             REFERENCE_BEAN_CACHE.put(referenceBeanName, referenceBean);
             return referenceBean;
         });

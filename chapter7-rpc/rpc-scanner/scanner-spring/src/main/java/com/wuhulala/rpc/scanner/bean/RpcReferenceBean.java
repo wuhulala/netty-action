@@ -150,7 +150,7 @@ public class RpcReferenceBean<T> {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                return invoker.invoke(new RpcInvocation(method, args));
+                return invoker.invoke(new RpcInvocation(interfaceClass, method, args)).getValue();
             }
         });
     }

@@ -30,6 +30,12 @@
             <artifactId>lombok</artifactId>
             <version>1.18.8</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>5.0.0.Alpha1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,6 +1,5 @@
-package com.wuhulala.rpc.protocol.invoker;
+package com.wuhulala.rpc.bean;
 
-import com.wuhulala.rpc.bean.Invocation;
 import com.wuhulala.rpc.exception.RpcException;
 
 /**
@@ -26,6 +25,6 @@ public interface Invoker<T> {
      * @return result 结果
      * @throws RpcException 异常
      */
-    Result invoke(Invocation invocation) throws RpcException;
+    RpcResult invoke(Invocation invocation) throws RpcException;
 
 }

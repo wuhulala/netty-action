@@ -21,4 +21,6 @@ public interface Invocation {
 
     Class<?> getReturnType();
 
+    InvokeMode getInvokeMode();
+
 }

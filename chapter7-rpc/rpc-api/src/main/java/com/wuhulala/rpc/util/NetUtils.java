@@ -173,27 +173,6 @@ public class NetUtils {
         return address == null ? LOCALHOST_VALUE : address.getHostAddress();
     }
 
-//    public static String filterLocalHost(String host) {
-//        if (host == null || host.length() == 0) {
-//            return host;
-//        }
-//        if (host.contains("://")) {
-//            RpcDesc u = RpcDesc.valueOf(host);
-//            if (NetUtils.isInvalidLocalHost(u.getHost())) {
-//                return u.setHost(NetUtils.getLocalHost()).toFullString();
-//            }
-//        } else if (host.contains(":")) {
-//            int i = host.lastIndexOf(':');
-//            if (NetUtils.isInvalidLocalHost(host.substring(0, i))) {
-//                return NetUtils.getLocalHost() + host.substring(i);
-//            }
-//        } else {
-//            if (NetUtils.isInvalidLocalHost(host)) {
-//                return NetUtils.getLocalHost();
-//            }
-//        }
-//        return host;
-//    }
 
     public static String getIpByConfig() {
 //        String configIp = ConfigurationUtils.getProperty(DUBBO_IP_TO_BIND);

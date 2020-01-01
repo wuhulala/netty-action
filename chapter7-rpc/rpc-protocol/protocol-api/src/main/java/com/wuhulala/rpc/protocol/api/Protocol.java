@@ -2,8 +2,8 @@ package com.wuhulala.rpc.protocol.api;
 
 import com.wuhulala.rpc.bean.RpcDesc;
 import com.wuhulala.rpc.exception.RpcException;
-import com.wuhulala.rpc.protocol.invoker.Exporter;
-import com.wuhulala.rpc.protocol.invoker.Invoker;
+import com.wuhulala.rpc.bean.Exporter;
+import com.wuhulala.rpc.bean.Invoker;
 
 /**
  * 协议实现

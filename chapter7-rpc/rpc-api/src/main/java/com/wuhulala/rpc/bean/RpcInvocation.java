@@ -24,10 +24,13 @@ public class RpcInvocation implements Invocation {
 
     private transient Class<?> returnType;
 
+    private InvokeMode invokeMode;
+
     public RpcInvocation() {
     }
 
-    public RpcInvocation(Method method, Object[] args) {
+    public RpcInvocation(Class<?> serviceClass, Method method, Object[] args) {
+        this.serviceClass = serviceClass;
         this.methodName = method.getName();
         this.arguments = args;
     }
@@ -87,5 +90,14 @@ public class RpcInvocation implements Invocation {
 
     public void setReturnType(Class<?> returnType) {
         this.returnType = returnType;
+    }
+
+    @Override
+    public InvokeMode getInvokeMode() {
+        return invokeMode;
+    }
+
+    public void setInvokeMode(InvokeMode invokeMode) {
+        this.invokeMode = invokeMode;
     }
 }

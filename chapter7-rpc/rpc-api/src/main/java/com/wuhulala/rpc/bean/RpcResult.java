@@ -14,31 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wuhulala.rpc.protocol.invoker;
+package com.wuhulala.rpc.bean;
+
+import java.io.Serializable;
+import java.util.concurrent.Future;
+
 
 /**
- * Exporter. (API/SPI, Prototype, ThreadSafe)
+ * (API, Prototype, NonThreadSafe)
  *
- * @see org.apache.dubbo.rpc.Protocol#export(Invoker)
- * @see org.apache.dubbo.rpc.ExporterListener
- * @see org.apache.dubbo.rpc.protocol.AbstractExporter
+ * An RPC {@link RpcResult}.
+ *
+ * <p>TODO 异步</p>
+ *
  */
-public interface Exporter<T> {
+public interface RpcResult extends Future<RpcResult>,  Serializable {
 
     /**
-     * get invoker.
+     * Get invoke result.
      *
-     * @return invoker
+     * @return result. if no result return null.
      */
-    Invoker<T> getInvoker();
+    Object getValue() ;
+
+    void setValue(Object value);
 
     /**
-     * unexport.
-     * <p>
-     * <code>
-     * getInvoker().destroy();
-     * </code>
+     * Get exception.
+     *
+     * @return exception. if no exception return null.
      */
-    void unexport();
+    Throwable getException();
+
+    void setException(Throwable t);
+
+    /**
+     * Has exception.
+     *
+     * @return has exception.
+     */
+    boolean hasException();
 
 }
