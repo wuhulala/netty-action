@@ -6,8 +6,10 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuhulala.rpc.bean.RpcDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.wuhulala.rpc.constants.CommonConstants.PATH_KEY;
 import static com.wuhulala.rpc.constants.CommonConstants.PROTOCOL_KEY;
@@ -90,7 +92,13 @@ public class NacosRegistry implements RegistryService {
 
     @Override
     public List<RpcDesc> lookup(RpcDesc url) {
-        return null;
+        final String serviceName = getServiceName(url);
+        List<Instance> instances = new ArrayList<>();
+        execute(namingService -> {
+            instances.addAll(namingService.getAllInstances(serviceName));
+        });
+        logger.info("查询到服务#{}的提供者有#{}个!", serviceName, instances.size());
+        return instances.stream().map(instance -> new RpcDesc(instance.getMetadata().get("protocol"), instance.getIp(), instance.getPort(), instance.getMetadata())).collect(Collectors.toList());
     }
 
     /**

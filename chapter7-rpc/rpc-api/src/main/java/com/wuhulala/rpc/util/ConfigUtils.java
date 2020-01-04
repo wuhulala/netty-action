@@ -1,5 +1,6 @@
 package com.wuhulala.rpc.util;
 
+import com.wuhulala.rpc.constants.ConfigConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import java.lang.management.RuntimeMXBean;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 public class ConfigUtils {
@@ -250,5 +252,30 @@ public class ConfigUtils {
             }
         }
         return PID;
+    }
+
+    public static List<String> getPropertyNamesWithPrefix(String prefix) {
+        if (StringUtils.isBlank(prefix)) {
+            throw new IllegalArgumentException("不允许输入空值");
+        }
+        return PROPERTIES.stringPropertyNames().stream().filter(pn -> pn.startsWith(prefix)).collect(Collectors.toList());
+    }
+
+    ///////////////////////////////////////
+
+    public static String getProtocol() {
+        return getProperty("rpc.protocol", "dubbo");
+    }
+
+    public static String getDefaultGroup() {
+        return getProperty(ConfigConstants.SERVICE_GROUP, "def");
+    }
+
+    public static String getDefaultVersion() {
+        return getProperty(ConfigConstants.SERVICE_VERSION, "def");
+    }
+
+    public static String getDefaultServer() {
+        return getProperty(ConfigConstants.SERVER_TYPE, "netty");
     }
 }

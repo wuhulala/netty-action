@@ -10,7 +10,7 @@
 
     <properties>
         <nacos.version>1.1.4</nacos.version>
-        <spring.version>5.1.7.RELEASE</spring.version>
+        <spring.version>4.3.19.RELEASE</spring.version>
     </properties>
 
     <dependencyManagement>
@@ -34,6 +34,21 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.24.0-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.8</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.18.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

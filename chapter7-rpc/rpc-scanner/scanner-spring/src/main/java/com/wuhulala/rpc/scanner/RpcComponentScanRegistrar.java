@@ -46,12 +46,28 @@ public class RpcComponentScanRegistrar implements ImportBeanDefinitionRegistrar 
         // 获取待扫描路径
         Set<String> packagesToScan = getPackagesToScan(importingClassMetadata);
 
+        // 启动 RpcBootstrap
+        registerRpcBootstrap(registry);
+
         // 注册 @RpcService 扫描器
         registerServiceAnnotationBeanPostProcessor(packagesToScan, registry);
 
         // 注册 @RpcReference 扫描器
         registerReferenceAnnotationBeanPostProcessor(registry);
 
+    }
+
+    private void registerRpcBootstrap(BeanDefinitionRegistry registry) {
+        BeanDefinitionBuilder builder = null;
+        try {
+            builder = rootBeanDefinition(Class.forName("com.wuhulala.rpc.core.RpcBootstrap"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        builder.setInitMethodName("start");
+        AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
+        BeanDefinitionReaderUtils.registerWithGeneratedName(beanDefinition, registry);
     }
 
     /**

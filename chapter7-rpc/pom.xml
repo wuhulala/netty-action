@@ -24,6 +24,7 @@
         <module>rpc-scanner</module>
         <module>rpc-server</module>
         <module>rpc-serialization</module>
+        <module>rpc-store</module>
     </modules>
     <dependencyManagement>
 

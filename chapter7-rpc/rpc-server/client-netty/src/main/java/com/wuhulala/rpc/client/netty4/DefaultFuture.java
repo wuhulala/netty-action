@@ -132,11 +132,11 @@ public class DefaultFuture extends CompletableFuture<Object> {
         try {
             DefaultFuture future = FUTURES.remove(response.getId());
             if (future != null) {
-                Timeout t = future.timeoutCheckTask;
-                if (!timeout) {
-                    // decrease Time
-                    t.cancel();
-                }
+//                Timeout t = future.timeoutCheckTask;
+//                if (!timeout) {
+//                    // decrease Time
+//                    t.cancel();
+//                }
                 future.doReceived(response);
             } else {
                 logger.warn("The timeout response finally returned at "

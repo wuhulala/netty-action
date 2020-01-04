@@ -17,15 +17,20 @@
 package com.wuhulala.rpc.client.netty4;
 
 import com.alibaba.cooma.ExtensionLoader;
+import com.wuhulala.rpc.bean.CommonResult;
+import com.wuhulala.rpc.bean.RpcInvocation;
+import com.wuhulala.rpc.constants.CommonConstants;
+import com.wuhulala.rpc.serialzation.Cleanable;
 import com.wuhulala.rpc.serialzation.ObjectInput;
+import com.wuhulala.rpc.serialzation.ObjectOutput;
 import com.wuhulala.rpc.serialzation.Serialization;
 import com.wuhulala.rpc.util.BytesUtils;
+import com.wuhulala.rpc.util.ReflectUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.handler.codec.string.StringEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -35,17 +40,17 @@ import static com.wuhulala.rpc.client.netty4.NettyClientHandler.*;
 
 /**
  * TODO 和server合并
- *
+ * <p>
  * NettyCodecAdapter.
  */
-final public class NettyCodecAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(NettyCodecAdapter.class);
+final public class NettyClientCodecAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(NettyClientCodecAdapter.class);
 
-    private final ChannelHandler encoder = new StringEncoder();
+    private final ChannelHandler encoder = new InternalEncoder();
 
     private final ChannelHandler decoder = new InternalDecoder();
 
-    public NettyCodecAdapter() {
+    public NettyClientCodecAdapter() {
 
     }
 
@@ -64,16 +69,82 @@ final public class NettyCodecAdapter {
 
 
         @Override
-        protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
+        protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf buffer) throws Exception {
+            logger.info("encode {}", msg);
+            if (!(msg instanceof Request)) {
+                return;
+            }
+            int savedWriteIndex = buffer.writerIndex();
+            try {
+                Request request = (Request) msg;
+                Serialization serialization = ExtensionLoader.getExtensionLoader(Serialization.class).getExtension("fastjson");
+                // header.
+                byte[] header = new byte[HEADER_LENGTH];
+                // set magic number.
+                BytesUtils.short2bytes(MAGIC, header);
+                // set request and serialization flag.
+                header[2] = serialization.getContentTypeId();
 
-//            org.apache.dubbo.remoting.buffer.ChannelBuffer buffer = new NettyBackedChannelBuffer(out);
-//            Channel ch = ctx.channel();
-//            NettyChannel channel = NettyChannel.getOrAddChannel(ch, url, handler);
-//            try {
-//                codec.encode(channel, buffer, msg);
-//            } finally {
-//                NettyChannel.removeChannelIfDisconnected(ch);
-//            }
+                // set response status.
+                byte status = 20;
+                header[3] = status;
+                // set request id.
+                BytesUtils.long2bytes(request.getId(), header, 4);
+
+                buffer.writerIndex(savedWriteIndex + HEADER_LENGTH);
+                ChannelBufferOutputStream bos = new ChannelBufferOutputStream(buffer);
+                ObjectOutput out = serialization.serialize(bos);
+                // encode response data or error message.
+//            out.writeByte()|;
+                // 设置响应类型
+                RpcInvocation rpcInvocation = (RpcInvocation) request.getData();
+                out.writeUTF(rpcInvocation.getAttachment(CommonConstants.DUBBO_VERSION_KEY, "2.0.2"));
+                out.writeUTF(rpcInvocation.getAttachment(CommonConstants.PATH_KEY));
+                out.writeUTF(rpcInvocation.getAttachment(CommonConstants.VERSION_KEY));
+
+                out.writeUTF(rpcInvocation.getMethodName());
+                out.writeUTF(ReflectUtils.getDesc(rpcInvocation.getParameterTypes()));
+                Object[] args = rpcInvocation.getArguments();
+                if (args != null) {
+                    for (int i = 0; i < args.length; i++) {
+                        out.writeObject(args[i]);
+                    }
+                }
+                out.writeObject(rpcInvocation.getAttachments());
+
+                out.flushBuffer();
+                if (out instanceof Cleanable) {
+                    ((Cleanable) out).cleanup();
+                }
+                bos.flush();
+                bos.close();
+
+                int len = bos.writtenBytes();
+//            checkPayload(channel, len);
+                BytesUtils.int2bytes(len, header, 12);
+                // write
+                buffer.writerIndex(savedWriteIndex);
+                buffer.writeBytes(header); // write header.
+                buffer.writerIndex(savedWriteIndex + HEADER_LENGTH + len);
+
+                ctx.writeAndFlush(buffer);
+            } catch (Throwable t) {
+                t.printStackTrace();
+                // clear buffer
+                buffer.writerIndex(savedWriteIndex);
+                // send error message to Consumer, otherwise, Consumer will wait till timeout.
+
+                // Rethrow exception
+                if (t instanceof IOException) {
+                    throw (IOException) t;
+                } else if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                } else if (t instanceof Error) {
+                    throw (Error) t;
+                } else {
+                    throw new RuntimeException(t.getMessage(), t);
+                }
+            }
         }
     }
 
@@ -137,6 +208,8 @@ final public class NettyCodecAdapter {
                 byte status = header[3];
                 res.setStatus(status);
 
+                // TODO 解析
+                res.setResult(new CommonResult("hello"));
                 //
                 return res;
 

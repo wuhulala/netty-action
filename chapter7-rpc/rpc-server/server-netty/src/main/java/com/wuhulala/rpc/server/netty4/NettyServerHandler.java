@@ -185,9 +185,9 @@ public class NettyServerHandler extends ChannelDuplexHandler {
         ServiceScanner scanner = ExtensionLoader.getExtensionLoader(ServiceScanner.class).getExtension(ConfigUtils.getProperty(ServiceScanner.SCANNER_TYPE));
         RpcInvocation invocation = new RpcInvocation();
         invocation.setServiceClass(serviceClass);
-        Object serviceInstance = scanner.getInvoker(invocation);
         Object result = "";
         try {
+            Object serviceInstance = scanner.getInvoker(invocation);
             Method method = ReflectUtils.findMethodByMethodSignature2(serviceClass, request.getMethodName(), request.getParameterTypes());
             result = method.invoke(serviceInstance, request.getArguments());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

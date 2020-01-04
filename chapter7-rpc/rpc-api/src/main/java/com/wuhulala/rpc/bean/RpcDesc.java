@@ -57,6 +57,8 @@ public class RpcDesc implements Serializable {
 
     private final Map<String, String> parameters;
 
+
+
     public RpcDesc(String protocol, String host, int port) {
         this(protocol, null, null, host, port, null, (Map<String, String>) null);
     }
@@ -188,6 +190,7 @@ public class RpcDesc implements Serializable {
     public Map<String, String> getParameters() {
         return parameters;
     }
+
 
     public Class<?> getType() {
         return type;

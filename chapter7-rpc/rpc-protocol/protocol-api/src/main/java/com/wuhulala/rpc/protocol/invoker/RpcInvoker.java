@@ -4,6 +4,7 @@ import com.wuhulala.rpc.bean.*;
 import com.wuhulala.rpc.client.Client;
 import com.wuhulala.rpc.client.exception.RemotingException;
 import com.wuhulala.rpc.exception.RpcException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,13 +22,33 @@ public class RpcInvoker<T> implements Invoker<T> {
 
     private Client[] clients;
 
+    private RpcDesc referenceDesc;
+
     public RpcInvoker(Class<T> interfaceClass) {
         this.interfaceClass = interfaceClass;
+    }
+
+    public RpcInvoker(Class<T> interfaceClass, List<Client> clients) {
+        this.interfaceClass = interfaceClass;
+        this.clients = clients.toArray(new Client[0]);
+    }
+
+    public RpcInvoker(Class<T> interfaceClass, RpcDesc desc) {
+        this.interfaceClass = interfaceClass;
+        this.referenceDesc =  desc;
     }
 
     @Override
     public Class<T> getInterface() {
         return interfaceClass;
+    }
+
+    public Client[] getClients() {
+        return clients;
+    }
+
+    public void setClients(List<Client> clients) {
+        this.clients = clients.toArray(new Client[0]);
     }
 
     @Override
@@ -69,6 +90,9 @@ public class RpcInvoker<T> implements Invoker<T> {
     }
 
     private Client selectOneClient() {
+        if (clients.length == 0) {
+            throw new RpcException(referenceDesc.toFullString() + "没有可用的服务提供者");
+        }
         Client currentClient;
         if (clients.length == 1) {
             currentClient = clients[0];
@@ -76,5 +100,10 @@ public class RpcInvoker<T> implements Invoker<T> {
             currentClient = clients[(int) (index.getAndIncrement() % clients.length)];
         }
         return currentClient;
+    }
+
+
+    public boolean isAllClientDestroy() {
+        return true;
     }
 }

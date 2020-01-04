@@ -95,12 +95,13 @@ public class RpcServiceAnnotationBeanPostProcessor implements BeanDefinitionRegi
 
     @Override
     public <T> T getInvoker(Invocation invocation) {
+        logger.info("find invoker#{} from spring container.", invocation.getServiceClass());
         return (T) applicationContext.getBean(generateServiceBeanName(invocation), RpcServiceBean.class).getRef();
     }
 
     @PostConstruct
     public void registerToContainer() {
-        logger.info("将当前SpringScanner注册到");
+        logger.info(">>>>>> 将当前SpringScanner注册到Comma容器里面");
         ExtensionLoader.getExtensionLoader(ServiceScanner.class).registerExtension("spring", this);
     }
 

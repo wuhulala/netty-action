@@ -1,8 +1,10 @@
 package com.wuhulala.rpc.bean;
 
+import com.wuhulala.rpc.constants.CommonConstants;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author wuhulala<br>
@@ -33,6 +35,12 @@ public class RpcInvocation implements Invocation {
         this.serviceClass = serviceClass;
         this.methodName = method.getName();
         this.arguments = args;
+        this.parameterTypes = new Class<?>[args.length];
+        for (int i = 0; i < args.length; i++) {
+            this.parameterTypes[i] = args[i].getClass();
+        }
+        getAttachments().put(CommonConstants.INTERFACE_KEY, serviceClass.getName());
+        getAttachments().put(CommonConstants.PATH_KEY, serviceClass.getName());
     }
 
     @Override
@@ -99,5 +107,17 @@ public class RpcInvocation implements Invocation {
 
     public void setInvokeMode(InvokeMode invokeMode) {
         this.invokeMode = invokeMode;
+    }
+
+    public String getAttachment(String pathKey) {
+        return getAttachments().get(pathKey);
+    }
+
+    public String getAttachment(String pathKey, String defaultValue){
+        return Optional.ofNullable(getAttachment(pathKey)).orElse(defaultValue);
+    }
+
+    public void addAttacments(Map<String, String> parameters) {
+        getAttachments().putAll(parameters);
     }
 }

@@ -62,7 +62,7 @@ public class NettyClient implements Client {
             @Override
             protected void initChannel(Channel ch) throws Exception {
 //                int heartbeatInterval = UrlUtils.getHeartbeat(getUrl());
-                NettyCodecAdapter adapter = new NettyCodecAdapter();
+                NettyClientCodecAdapter adapter = new NettyClientCodecAdapter();
                 ch.pipeline()
 //                        .addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
                         .addLast("decoder", adapter.getDecoder())
@@ -115,7 +115,13 @@ public class NettyClient implements Client {
         req.setData(message);
         DefaultFuture future = DefaultFuture.newFuture(channel, req, 3000);
         try {
-            channel.writeAndFlush(message);
+            while (!channel.isActive()) {
+                Thread.sleep(100);
+                if (channel.isActive()) {
+                    logger.info("发送消息....{}", req);
+                    channel.writeAndFlush(req);
+                }
+            }
         } catch (Exception e) {
             future.cancel();
             throw new RemotingException(channel, "发送请求失败!", e);

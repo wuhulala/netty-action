@@ -1,7 +1,7 @@
 package com.wuhulala.rpc.example.controller;
 
 import com.wuhulala.rpc.annotation.RpcReference;
-import com.wuhulala.rpc.example.api.HelloService;
+import org.apache.dubbo.demo.DemoService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
 
     @RpcReference
-    private HelloService helloService;
+    private DemoService demoService;
 
     @RequestMapping("hello/{name}")
     public String hello(@PathVariable String name){
         System.out.println(name);
-        return helloService.sayHello(name);
+        return demoService.sayHello(name);
     }
 
 }

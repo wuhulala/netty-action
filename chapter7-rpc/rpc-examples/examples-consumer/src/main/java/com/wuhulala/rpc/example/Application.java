@@ -1,5 +1,6 @@
 package com.wuhulala.rpc.example;
 
+import com.wuhulala.rpc.scanner.annotation.RpcComponentScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,10 +10,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since v1.0<br>
  */
 @SpringBootApplication
+@RpcComponentScan("com.wuhulala.rpc.example.controller")
 public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+//        RpcBootstrap bootstrap = new RpcBootstrap();
+//        bootstrap.start();
     }
 
 }
