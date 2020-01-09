@@ -152,6 +152,7 @@ public class RpcReferenceBean<T> {
     }
 
     public List<Client> getClients() {
+        // TODO 判断需要和服务端建立多少个连接，每个服务的连接是否隔离还是共享
         RpcDesc desc = toDesc();
         List<RpcDesc> targetRpcDesc = new ArrayList<>();
         registryServices.forEach(registryService -> {

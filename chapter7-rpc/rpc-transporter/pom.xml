@@ -16,6 +16,7 @@
         <module>server-netty</module>
         <module>client-api</module>
         <module>client-netty</module>
+        <module>transporter-api</module>
     </modules>
 
 

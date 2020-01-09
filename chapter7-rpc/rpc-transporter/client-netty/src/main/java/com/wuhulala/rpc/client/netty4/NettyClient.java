@@ -33,6 +33,9 @@ public class NettyClient implements Client {
 
     private static final int DEFAULT_IO_THREADS = Math.min(Runtime.getRuntime().availableProcessors() + 1, 32);
     private Bootstrap bootstrap;
+    /**
+     * 命名：：：NettyClientWorker-4-5
+     */
     private static final NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(DEFAULT_IO_THREADS, new DefaultThreadFactory("NettyClientWorker", true));
 
     private RpcDesc url;

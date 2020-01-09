@@ -187,9 +187,12 @@ public class NettyServerHandler extends ChannelDuplexHandler {
         invocation.setServiceClass(serviceClass);
         Object result = "";
         try {
+            // TODO 当前默认是在IO线程上面执行，有可能需要根据不同的服务需求 是否进行开辟新的线程池去执行
+            //  2020-01-09 22:47:03,090 [nioEventLoopGroup-3-2] [INFO ] com.wuhulala.rpc.server.netty4.NettyServerHandler.doHandleResult(NettyServerHandler.java:194)
             Object serviceInstance = scanner.getInvoker(invocation);
             Method method = ReflectUtils.findMethodByMethodSignature2(serviceClass, request.getMethodName(), request.getParameterTypes());
             result = method.invoke(serviceInstance, request.getArguments());
+            logger.info("服务#{} 执行成功!", request);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             logger.error("服务#{} 执行失败!", request, e);
             result = MessageFormat.format("服务{0} 执行失败", request);
