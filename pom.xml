@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <netty.version>4.1.18.Final</netty.version>
+        <netty.version>4.1.45.Final</netty.version>
     </properties>
 
     <modules>
@@ -22,6 +22,7 @@
         <module>chapter5-http</module>
         <module>chapter6-websocket</module>
         <module>chapter7-rpc</module>
+        <module>chapter8-sourcecode</module>
     </modules>
     <dependencies>
         <dependency>

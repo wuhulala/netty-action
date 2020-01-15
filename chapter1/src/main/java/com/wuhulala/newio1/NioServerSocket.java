@@ -33,7 +33,7 @@ public class NioServerSocket {
 
     public static void main(String[] args) {
         ServerSocketChannel ssc = null;
-        Selector selector = null;
+        final Selector selector;
         try {
             selector = Selector.open();
             ssc = ServerSocketChannel.open();
@@ -42,14 +42,28 @@ public class NioServerSocket {
             ssc.bind(new InetSocketAddress(9876));
 
             ssc.register(selector, SelectionKey.OP_ACCEPT);
+            for (int i = 0; i < 2; i++) {
+                new Thread(() -> {
+                    System.out.println(Thread.currentThread().getName() + " 启动成功");
+                    doHandler(selector);
+                }).start();
+            }
         } catch (IOException e) {
             System.out.println("e 1" + e.getMessage());
         }
 
+    }
+
+    private static void doHandler(Selector selector) {
+        ServerSocketChannel ssc;
         try {
+            System.out.println(Thread.currentThread().getName() + " 初始化处理器");
+
             assert selector != null;
             int count = 0;
             while (selector.select() > 0) {
+                System.out.println(Thread.currentThread().getName() + " 处理");
+
                 System.out.println("-------------" + ++count + "------------------");
                 // Get an iterator over the set of selected keys
                 Iterator<SelectionKey> it = selector.selectedKeys().iterator();
@@ -89,8 +103,6 @@ public class NioServerSocket {
         } catch (IOException e) {
             System.out.println("e while" + e.getMessage());
         }
-
-
     }
 
     private static String translate(int i) {
