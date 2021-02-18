@@ -9,9 +9,7 @@
 4. netty server的其它功能
 5. netty client的启动
 6. netty client的请求处理
-7. netty client的相应
+7. netty client的其它功能
 8. netty 的 零内存拷贝原理(零拷贝其实是指CPU上下文切换的次数是零，而非拷贝次数是0。)
 9. netty 的 通道
-10. netty 的 通道周边功能
-11. netty 的 pipeline
-12. netty 的 内存管理
+10. netty 的 内存管理
